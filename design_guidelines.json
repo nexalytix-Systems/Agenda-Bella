@@ -1,0 +1,121 @@
+{
+  "theme_archetype": "Organic & Earthy",
+  "theme_mode": "light",
+  "typography": {
+    "fonts": {
+      "heading": "Cormorant Garamond",
+      "body": "Manrope",
+      "mono": "IBM Plex Mono"
+    },
+    "scale": {
+      "h1": "text-4xl sm:text-5xl lg:text-6xl tracking-tight leading-none",
+      "h2": "text-2xl sm:text-3xl lg:text-4xl tracking-tight leading-tight",
+      "h3": "text-xl sm:text-2xl leading-snug",
+      "body": "text-base leading-relaxed",
+      "small": "text-sm",
+      "overline": "text-xs uppercase tracking-[0.2em] font-medium"
+    },
+    "rules": {
+      "headings": "Never use Inter, Roboto, or standard Sans for headings. Use Cormorant Garamond to inject a high-end, luxury beauty feel.",
+      "body": "Use Manrope for all dashboards, forms, and general SaaS text to ensure maximum legibility.",
+      "time_slots": "Use Monospace or highly geometric fonts with tracking-wide for times (e.g., 09:00 AM) to align them perfectly in grid layouts."
+    }
+  },
+  "colors": {
+    "palette": {
+      "background": "hsl(36 20% 97%)",
+      "foreground": "hsl(0 0% 10%)",
+      "primary": "hsl(133 11% 33%)",
+      "primary_foreground": "hsl(36 20% 97%)",
+      "secondary": "hsl(36 10% 90%)",
+      "secondary_foreground": "hsl(133 11% 33%)",
+      "accent": "hsl(10 50% 50%)",
+      "accent_foreground": "hsl(0 0% 100%)",
+      "border": "hsl(36 15% 90%)",
+      "card": "hsl(0 0% 100%)",
+      "card_foreground": "hsl(0 0% 10%)"
+    },
+    "rules": {
+      "contrast": "Always ensure text has at least 4.5:1 contrast against backgrounds. Never use pure black or pure gray; always tint grays with warmth (sand/bone).",
+      "interactive": "Hover states must be explicitly defined. E.g. hover:bg-primary/90 hover:text-white. Focus states must have high contrast rings focus:ring-2 focus:ring-primary/50.",
+      "accents": "Limit the use of the Accent color (Terracotta) to notifications, unread badges, or secondary distinct CTAs like 'Cancel Booking'."
+    }
+  },
+  "visual_enhancers": {
+    "surfaces": {
+      "landing_header": "Glassmorphism: backdrop-blur-xl bg-white/70 with a delicate border-b border-border/40. MUST NOT be purely transparent.",
+      "dashboard_cards": "Flat solid background (card), 1px solid border-border, no heavy shadows. Very slight ambient shadow-sm only.",
+      "radius": "Subtle roundness. Use radius-md (8px) for cards, full-rounded (pill-shaped) for time slots and primary CTAs."
+    },
+    "icons": "lucide-react",
+    "motion": "Use framer-motion for smooth page transitions and micro-interactions. Add stagger to lists of appointments or time slots. ALL buttons must have scale down on active: active:scale-95 transition-transform.",
+    "textures": "Add a very subtle SVG noise or grain overlay in the background of the landing page hero to reduce 'digital flatness'."
+  },
+  "layouts": {
+    "landing": "Use 'The Bento Grid Mode A' (Tetris Grid) with aggressive asymmetry. Avoid simple 50/50 split sections. Integrate large imagery spanning multiple columns.",
+    "dashboard": "Use 'The Bento Grid Mode B' (High Density Grid). 1 to 4 columns. Side navigation (fixed) on desktop, bottom tab bar or hamburger on mobile.",
+    "scheduling_calendar": "Display available days horizontally in a scrollable list or compact standard calendar, followed by a dense, wrap-enabled grid of pill-shaped time slots below.",
+    "spacing": "Generous spacing. Use p-8 or p-12 for major containers. Ensure minimum p-6 inside cards with borders."
+  },
+  "components": {
+    "ui_library": "shadcn/ui primitives. Customize heavily to remove default 'Vercel' tech look.",
+    "booking_flow": "Cardless, stepped process. Step 1: Service Select. Step 2: Professional. Step 3: Date/Time (Shadcn Calendar + custom pills). Step 4: Checkout/Sinal (Stripe context).",
+    "notifications": "Use 'sonner' for toasts. Position top-center or bottom-right.",
+    "forms": "React Hook Form + Zod. Inputs must have subtle background colors and clear focus rings.",
+    "rules": "DO NOT use native HTML <select>, <input type='date'>. Use Shadcn components. Override standard tablist height from h-9 to h-auto to prevent clipping."
+  },
+  "accessibility": {
+    "testing_attributes": "All interactive and key informational elements MUST include a data-testid attribute (e.g., data-testid='login-submit-button', data-testid='time-slot-0900').",
+    "reduced_motion": "Respect prefers-reduced-motion media queries."
+  },
+  "media": {
+    "images": [
+      {
+        "url": "https://images.unsplash.com/photo-1759142449398-89357aa1bb36?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAxODF8MHwxfHNlYXJjaHwzfHxtb2Rlcm4lMjBiYXJiZXJzaG9wJTIwaW50ZXJpb3J8ZW58MHx8fHwxNzg3OTIyNDA5fDA&ixlib=rb-4.1.0&q=85",
+        "description": "Modern barbershop interior with vintage posters",
+        "category": "hero_background"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1759134198561-e2041049419c?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAxODF8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjBiYXJiZXJzaG9wJTIwaW50ZXJpb3J8ZW58MHx8fHwxNzg3OTIyNDA5fDA&ixlib=rb-4.1.0&q=85",
+        "description": "Barbers cutting hair in a modern salon",
+        "category": "service_haircut"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1632345031435-8727f6897d53?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzMzl8MHwxfHNlYXJjaHwxfHxuYWlsJTIwc2Fsb24lMjBtYW5pY3VyZXxlbnwwfHx8fDE3ODc5MjI0MDl8MA&ixlib=rb-4.1.0&q=85",
+        "description": "Woman getting her nails done at a nail salon",
+        "category": "service_manicure"
+      },
+      {
+        "url": "https://images.pexels.com/photos/3993455/pexels-photo-3993455.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "description": "Portrait of a female hairstylist holding scissors",
+        "category": "professional_profile_1"
+      },
+      {
+        "url": "https://images.pexels.com/photos/29096366/pexels-photo-29096366.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "description": "Hair stylist working on diverse hairstyles",
+        "category": "professional_profile_2"
+      }
+    ],
+    "rules": "Images must have max-h-[80vh] on mobile devices. Use object-cover for profile avatars and service thumbnails. Hero images require a gradient or solid overlay (bg-black/30) if text overlays them, to maintain contrast."
+  },
+  "instructions_to_main_agent": [
+    "You are building a high-end SaaS booking platform for wellness/beauty. Do NOT build a generic tech dashboard.",
+    "Use the exact color palette specified to create a warm, organic, and trustworthy environment.",
+    "Implement distinct layouts for the Landing Page (asymmetrical bento) vs Dashboard (high-density functional grid).",
+    "Prioritize Shadcn components but override their default borders/radii to match the custom organic theme.",
+    "In the booking calendar UI, map the time slots cleanly using small pill-shaped buttons with hover/active/disabled states.",
+    "Ensure all buttons, form inputs, time slots, and major links have explicit data-testid attributes.",
+    "Implement 'sonner' for toasts.",
+    "The payment step (sinal/entrada) via Stripe should feel deeply integrated, using clear summary breakdowns before confirming.",
+    "Use js files exclusively as the project does not support tsx natively (based on cra-template)."
+  ],
+  "UNIVERSAL_GUIDELINES_FOR_MAIN_AGENT": [
+    "Do not use generic centered layouts, simplistic gradients, or uniform styling.",
+    "Avoid the 'AI slop' aesthetic; make the frontend creative and distinctive.",
+    "NEVER use emojis for icons. Use lucide-react.",
+    "Create depth through layered design elements with z-index hierarchy and subtle glass-morphism effects.",
+    "DO NOT apply universal transitions (e.g. transition: all), it breaks transforms.",
+    "DO NOT center align the main app container globally.",
+    "Add micro-animations to every interaction (hover states, focus rings, entrance staggered animations)."
+  ]
+}

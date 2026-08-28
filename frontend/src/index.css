@@ -1,0 +1,76 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Manrope:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 36 20% 97%;
+    --foreground: 0 0% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 10%;
+    --primary: 133 11% 33%;
+    --primary-foreground: 36 20% 97%;
+    --secondary: 36 10% 90%;
+    --secondary-foreground: 133 11% 33%;
+    --muted: 36 15% 93%;
+    --muted-foreground: 0 0% 40%;
+    --accent: 10 50% 50%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 36 15% 88%;
+    --input: 36 15% 90%;
+    --ring: 133 11% 33%;
+    --radius: 0.6rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html, body, #root {
+    background: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family: 'Manrope', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, h4 {
+    font-family: 'Cormorant Garamond', serif;
+    letter-spacing: -0.01em;
+  }
+  .font-serif-display {
+    font-family: 'Cormorant Garamond', serif;
+  }
+  .font-mono-time {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    letter-spacing: 0.06em;
+  }
+}
+
+/* Subtle grain texture overlay */
+.grain-overlay::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.04;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+}
+
+.time-slot-pill {
+  transition: background-color 200ms ease, color 200ms ease, transform 120ms ease, border-color 200ms ease;
+}
+.time-slot-pill:active { transform: scale(0.96); }
+
+.btn-press { transition: transform 120ms ease; }
+.btn-press:active { transform: scale(0.97); }
+
+@layer base {
+  [data-debug-wrapper="true"] { display: contents !important; }
+}

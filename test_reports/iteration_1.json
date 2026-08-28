@@ -1,0 +1,32 @@
+{
+  "summary": "Backend smoke tests for AgendaBella (auth, professionals, services, availability, slots, bookings, payments, admin). All 13 targeted areas verified against public URL. 24/24 backend checks pass.",
+  "tested_scope": ["backend", "auth", "integration"],
+  "passed": [
+    "POST /api/auth/login admin returns 200 with role=admin and token",
+    "POST /api/auth/register creates cliente (returns user+token)",
+    "POST /api/auth/register creates profissional (returns user+token)",
+    "GET /api/professionals returns >=4 seeded professionals",
+    "GET /api/professionals?category=barbearia filter works",
+    "GET /api/professionals/{id} returns services + availabilities",
+    "POST /api/services (profissional) creates service; GET /api/services/mine lists it; DELETE /api/services/{id} works",
+    "POST /api/availability creates entry; GET /api/availability/mine lists; DELETE /api/availability/{id} works",
+    "GET /api/professionals/{id}/slots?date=&service_id= returns {slots, service_duration, service_price} with 30-min grid respected",
+    "POST /api/bookings creates booking with status=pending_payment and deposit=30% of price",
+    "POST /api/bookings second identical request returns 409 (slot conflict)",
+    "POST /api/payments/checkout returns 200 with checkout_url + session_id (Stripe test)",
+    "GET /api/payments/status/{session_id} returns 200 (Stripe lookup no crash)",
+    "GET /api/bookings/mine scoped: cliente sees own bookings, admin sees all",
+    "POST /api/bookings/{id}/cancel updates status to cancelled (permission enforced)",
+    "GET /api/admin/{stats,users,bookings} return 200 for admin",
+    "GET /api/admin/stats returns 401/403 for cliente"
+  ],
+  "failed": [],
+  "action_items": [
+    "Minor: booking payload field is start_time (not time) and slot response is {slots:[...], service_duration, service_price} — ensure frontend uses these exact names.",
+    "Minor: profissional availability listing endpoint is GET /api/availability/mine (not GET /api/availability, which is 405). Confirm frontend uses /mine.",
+    "Booking response deposit field is `deposit` (not `deposit_amount`). Confirm frontend key naming."
+  ],
+  "success_rate": {"backend": "100%", "frontend": "not tested (skipped per request)"},
+  "retest_needed": false,
+  "full_testing_deferred": true
+}
