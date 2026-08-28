@@ -1,0 +1,47 @@
+{
+  "summary": "Iteration 2 backend tests for AgendaBella new features: reviews, portfolio, packages (fidelidade), city/state location fields, city filter + name search on /api/professionals, and mocked WhatsApp notifications persisted in db.notifications. 18/18 pytest cases passed against the public URL.",
+  "tested_scope": ["backend"],
+  "passed": [
+    "POST /api/auth/register stores city and state (verified via GET /api/auth/me)",
+    "PATCH /api/professionals/me updates city, state, business_name, address",
+    "GET /api/professionals returns avg_rating and reviews_count on every item",
+    "GET /api/professionals?city=são case-insensitive prefix filter works",
+    "GET /api/professionals?city=<no-match> returns []",
+    "GET /api/professionals?q=<name> searches by name/business_name",
+    "POST /api/reviews on unconfirmed booking returns 400",
+    "POST /api/reviews on confirmed booking returns 200 with correct rating/comment",
+    "POST /api/reviews second attempt on same booking returns 400",
+    "GET /api/reviews/professional/{pid} returns list",
+    "GET /api/professionals/{id} includes reviews[] + packages[] + rating summary",
+    "POST /api/portfolio adds image; GET /api/portfolio/professional/{pid} lists it; DELETE /api/portfolio/{id} removes it",
+    "POST /api/packages computes regular_price = service.price * sessions_count",
+    "GET /api/packages/mine lists profissional packages",
+    "POST /api/packages/checkout returns Stripe checkout_url + session_id for cliente",
+    "GET /api/packages/my-active returns [] for cliente pre-payment",
+    "DELETE /api/packages/{id} works for owner profissional",
+    "db.notifications collection: mocked_sent doc reachable via GET /api/notifications/mine (auth required, 401 when missing)"
+  ],
+  "failed": [],
+  "backend_issues": {"critical": [], "minor": []},
+  "critical_code_review_comments": [
+    "notify_whatsapp WhatsApp confirmation is best-effort inside /payments/status; if client or pro doc is missing it will 500 (no try/except around notify_whatsapp calls). Consider wrapping in try/except.",
+    "GET /api/notifications/mine filters by meta.user_id — ensure all notify_whatsapp callers set meta.user_id (currently confirmation + pro_new do). If future callers forget, notifications will be invisible.",
+    "server.py is ~825 lines, single-file; recommend splitting into routers (auth/professionals/bookings/payments/reviews/portfolio/packages/notifications) for maintainability.",
+    "PackageIn requires sessions_count > 1; consider >=1 for single-session promo packs.",
+    "notify_whatsapp is triggered inside payment_status polling; if the endpoint is called multiple times after payment, duplicate notifications may be inserted. Guard with a check on booking.notified flag or payment_transactions.notified."
+  ],
+  "test_report_links": [
+    "/app/backend/tests/test_new_features.py",
+    "/app/test_reports/pytest/iter2.xml"
+  ],
+  "action_items": [
+    "Optional hardening: wrap notify_whatsapp calls in try/except; add idempotency guard to avoid duplicate WhatsApp mocks on repeated /payments/status polling."
+  ],
+  "updated_files": ["/app/backend/tests/test_new_features.py"],
+  "success_rate": {"backend": "100% (18/18)", "frontend": "not tested (per request)"},
+  "test_credentials": "Admin: cassimiro77@gmail.com / admin123 (from /app/memory/test_credentials.md). Test users created dynamically per run with TEST prefix.",
+  "seed_data_creation": "Test users, service, availability, booking, review, portfolio item, package created; ephemeral users retained in db (unique emails).",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "All new endpoints (reviews, portfolio, packages, notifications) verified working. WhatsApp notification trigger inside /payments/status was validated by inserting a doc directly and reading via /api/notifications/mine (since we can't force Stripe to paid without real card flow). Full end-to-end WhatsApp trigger via Stripe payment flip should be validated once frontend/E2E test runs. Iteration 1 tests still hold (24/24)."
+}

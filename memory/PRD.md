@@ -1,39 +1,44 @@
-# AgendaBella — PRD
+# AgendaBella — PRD (Google da Beleza & Bem-Estar)
 
-## Problem Statement
-App de agendamento para barbearia, cabeleireira, estética de sobrancelhas, manicure etc. Login do cliente, escolha de horário conforme disponibilidade do profissional, perfil do profissional e pagamento integrado.
+## Visão
+Plataforma "Google da beleza & bem-estar" — descoberta geo, campanhas pagas, monetização por assinatura + boost.
 
-## User Choices (initial)
-- Login: email/senha (JWT)
-- Roles: Cliente + Profissional + Admin
-- Pagamento: Sinal/entrada (30%) via Stripe (Flow A sandbox, tax_mode=diy, BRL)
-- Idioma: pt-BR
+## Roles
+- Cliente (agenda, avalia, compra pacotes)
+- Profissional (gerencia serviços, agenda, cupons, boost, assinatura)
+- Admin (curadoria de destaques, dashboard geral)
+- (Futuro) Estabelecimento/Loja com múltiplos profissionais
 
-## Architecture
-- Backend: FastAPI + MongoDB (motor)
-- Auth: JWT (cookie + Bearer header), bcrypt, seed admin
-- Frontend: React + Tailwind + shadcn/ui + framer-motion
-- Payments: Stripe Checkout — inline price_data (variable deposit)
+## Features Implementadas
+### v1 (2026-02)
+- Auth JWT + roles + admin seed (cassimiro77@gmail.com/admin123)
+- Landing + Discover + Perfil profissional + Booking com calendário/slots
+- Stripe Checkout — Sinal 30% BRL
+- Painel profissional (serviços/disponibilidade/perfil) + Painel admin
 
-## Personas
-- Cliente: descobre profissionais, agenda, paga sinal, gerencia agendamentos
-- Profissional: define serviços, disponibilidade, vê agenda, edita perfil
-- Admin: dashboard estatísticas, usuários, agendamentos
+### v2 (Avaliações + Portfolio + Pacotes + WhatsApp mock)
+- Reviews 1-5 estrelas com comentário; média exibida no perfil e cards
+- Portfolio — galeria de fotos por profissional
+- Pacotes de fidelidade — combos com desconto, comprados via Stripe
+- WhatsApp mock — notificações persistidas em `db.notifications` (aguardando Twilio)
 
-## Implemented (v1 — 2026-02)
-- Landing (bento hero, categorias, how-it-works)
-- Auth (login + registro por role + categoria para profissional)
-- Descobrir profissionais (filtro categoria + busca)
-- Perfil profissional (foto/bio/serviços) + fluxo de agendamento (calendário + slots dinâmicos)
-- Checkout Stripe (sinal 30%) + Success/Cancel
-- Meus agendamentos (cliente): pagar/cancelar
-- Painel profissional: serviços CRUD, disponibilidade CRUD, agenda, perfil
-- Painel admin: stats, usuários, agendamentos
-- Demo seed: 4 profissionais (Ana, Carlos, Beatriz, Juliana) com serviços e disponibilidade Seg-Sáb 09-18
+### v3 (Google da Beleza)
+- Categorias expandidas: Barbearia, Cabeleireira, Manicure, Estética, Massagem, Spa, Yoga, Pilates, Nutrição
+- Geolocalização: lat/lng no cadastro/perfil; "Perto de mim" HTML5 no Discover; ordenação por distância (haversine)
+- Boost pago (Stripe): 7d R$29,90 | 30d R$99,90 → aparece no topo com selo "Patrocinado"
+- Cupons: profissional cria códigos com % OFF, validação com uses/expiry
+- Destaques por Admin: featured 7 dias com selo "Destaque"
+- Assinatura mensal (Stripe subscription): Pro R$49,90 | Premium R$99,90
 
-## Backlog / Next
-- P1: notificações email/SMS
-- P1: avaliações reais dos profissionais
-- P1: portfólio (múltiplas fotos por profissional)
-- P2: pagamento total, cupons, planos por assinatura para o profissional
-- P2: multi-establecimento com convite de profissionais pelo admin
+## Backlog (P0/P1/P2)
+- P0: Ativar Twilio WhatsApp real (aguardando credenciais do usuário)
+- P0: Modelo de Loja/Estabelecimento com múltiplos profissionais (invite flow)
+- P1: Aplicação de cupom no checkout do sinal (endpoint pronto, integrar UI)
+- P1: Lembrete WhatsApp 24h antes (cron/agendado)
+- P1: Consumo automático de pacote no booking (subtract session)
+- P2: Mapa interativo Mapbox/Google
+- P2: Analytics para profissional (views, conversão, receita)
+- P2: Chat/mensagens cliente↔profissional
+
+## Test Coverage
+- 67/67 backend tests (iter1 24 + iter2 18 + iter3 25) — 100%

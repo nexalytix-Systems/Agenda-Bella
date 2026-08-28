@@ -1,0 +1,60 @@
+{
+  "summary": "Iteration 3 backend testing complete. 25/25 pytest cases passed covering geolocation (distance_km + sort), is_boosted/is_featured flags, Coupons CRUD + validate (404/400 expired/exhausted), Boost checkout (7d/30d + invalid), Admin feature/unfeature, Subscription plans + Stripe subscription mode, and RBAC 403 checks for cliente/admin on pro-only endpoints.",
+  "tested_scope": ["backend"],
+  "passed": [
+    "GET /api/professionals?client_lat&client_lng returns numeric distance_km on pros with lat/lng",
+    "GET /api/professionals without coords: distance_km=null on all",
+    "GET /api/professionals returns is_boosted, is_featured bool flags on every item",
+    "POST /api/coupons creates coupon (code upper-cased, used_count=0)",
+    "POST /api/coupons duplicate code returns 400",
+    "GET /api/coupons/mine lists profissional's coupons",
+    "GET /api/coupons/validate?code&professional_id returns code+discount_percent on valid",
+    "GET /api/coupons/validate returns 404 for unknown code",
+    "GET /api/coupons/validate returns 400 for expired (valid_until in past)",
+    "GET /api/coupons/validate returns 400 for exhausted (used_count>=max_uses)",
+    "DELETE /api/coupons/{id} works for owner",
+    "POST /api/boost/checkout plan=7d returns Stripe checkout_url + session_id",
+    "POST /api/boost/checkout plan=30d works",
+    "POST /api/boost/checkout invalid plan returns 400",
+    "POST /api/admin/feature (admin) sets featured_until; is_featured=true on list",
+    "POST /api/admin/unfeature (admin) clears featured_until; is_featured=false",
+    "GET /api/subscription/plans returns pro (49.90) + premium (99.90) with features list",
+    "POST /api/subscription/checkout plan=pro returns Stripe URL and (verified via stripe.checkout.Session.retrieve) mode=subscription",
+    "POST /api/subscription/checkout invalid plan returns 400",
+    "RBAC: cliente 403 on POST /api/coupons",
+    "RBAC: cliente 403 on POST /api/boost/checkout",
+    "RBAC: cliente 403 on POST /api/subscription/checkout",
+    "RBAC: admin 403 on POST /api/coupons (pro-only)",
+    "RBAC: admin 403 on POST /api/subscription/checkout (pro-only)",
+    "RBAC: profissional 403 on POST /api/admin/feature (admin-only)"
+  ],
+  "failed": [],
+  "backend_issues": {"critical": [], "minor": []},
+  "critical_code_review_comments": [
+    "server.py is ~1025 lines single-file. Strongly recommend splitting into routers (auth, professionals, bookings, payments, coupons, boost, subscription, admin) — maintenance risk grows fast.",
+    "Coupon uniqueness is per-professional (unique on {professional_id, code}). No DB unique index enforcing this — two concurrent creates could bypass the app-level find_one check. Add a compound unique index on db.coupons(professional_id, code).",
+    "GET /api/coupons/validate compares valid_until (ISO string) via lexicographic '<' against datetime.now().isoformat(). Works only if valid_until is stored as UTC ISO with same offset format ('+00:00'). Client sending 'YYYY-MM-DD' or naive ISO could produce wrong result. Recommend parsing to datetime for comparison.",
+    "list_professionals runs an N+1: for every pro it queries services + reviews aggregate. With growth this will be slow. Batch via $lookup or bulk fetch.",
+    "distance_km sort places pros without coords at 99999 — they appear last even if boosted+featured (they still get priority by first two keys, so ok). But rating tiebreaker uses -avg_rating; None avg treated as 0 (correct).",
+    "BOOST/SUB stripe error 500 message leaks 'Stripe: ...' — fine for internal but consider generic message for prod.",
+    "featured_until stored as ISO string; comparison p['featured_until'] > now (ISO strings) — same caveat as coupon expiry.",
+    "SUB_PLANS/BOOST_PLANS hardcoded; consider moving to config/env for pricing agility.",
+    "notify_whatsapp callers previously flagged; no change needed for iter3."
+  ],
+  "test_report_links": [
+    "/app/backend/tests/test_iter3_campaigns.py",
+    "/app/test_reports/pytest/iter3.xml"
+  ],
+  "action_items": [
+    "(Optional) Add compound unique index on db.coupons (professional_id, code)",
+    "(Optional) Parse valid_until/featured_until/boosted_until as datetime for comparison instead of ISO string lexicographic compare",
+    "(Optional) Split server.py into routers"
+  ],
+  "updated_files": ["/app/backend/tests/test_iter3_campaigns.py"],
+  "success_rate": {"backend": "100% (25/25)", "frontend": "not tested (per request)"},
+  "test_credentials": "Admin cassimiro77@gmail.com / admin123 used from /app/memory/test_credentials.md; cliente & profissional registered inline.",
+  "seed_data_creation": "Ephemeral test cliente/profissional and 3 test coupons (deleted or left with unique codes). Featured flag set then cleared on test profissional.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Iter1 (24) + Iter2 (18) + Iter3 (25) = 67 backend tests all passing. Coupons/boost/featured/subscription/geolocation all verified via public URL. Stripe sessions created successfully with STRIPE_SECRET_KEY (mode=subscription verified for subscription checkout via stripe SDK retrieve). WhatsApp remains mocked. Next iter: consider adding webhook simulation to complete boost/subscription end-to-end (flip payment_status via webhook and verify boosted_until/subscription_plan is set on user)."
+}

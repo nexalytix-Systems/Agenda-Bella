@@ -20,6 +20,8 @@ export default function Auth({ mode = "login" }) {
   const [role, setRole] = useState(initialRole);
   const [category, setCategory] = useState("");
   const [phone, setPhone] = useState("");
+  const [city, setCity] = useState("");
+  const [stateVal, setStateVal] = useState("");
   const [loading, setLoading] = useState(false);
 
   const submit = async (e) => {
@@ -28,7 +30,7 @@ export default function Auth({ mode = "login" }) {
     try {
       let u;
       if (mode === "register") {
-        u = await register({ name, email, password, role, category: role === "profissional" ? category : undefined, phone });
+        u = await register({ name, email, password, role, category: role === "profissional" ? category : undefined, phone, city, state: stateVal });
         toast.success("Cadastro realizado!");
       } else {
         u = await login(email, password);
@@ -80,6 +82,11 @@ export default function Auth({ mode = "login" }) {
                     <SelectItem value="Cabeleireira">Cabeleireira</SelectItem>
                     <SelectItem value="Manicure">Manicure</SelectItem>
                     <SelectItem value="Estética">Estética</SelectItem>
+                    <SelectItem value="Massagem">Massagem</SelectItem>
+                    <SelectItem value="Spa">Spa</SelectItem>
+                    <SelectItem value="Yoga">Yoga</SelectItem>
+                    <SelectItem value="Pilates">Pilates</SelectItem>
+                    <SelectItem value="Nutrição">Nutrição</SelectItem>
                     <SelectItem value="Outros">Outros</SelectItem>
                   </SelectContent>
                 </Select>
@@ -88,6 +95,16 @@ export default function Auth({ mode = "login" }) {
             <div>
               <Label htmlFor="phone">Telefone (opcional)</Label>
               <Input id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} data-testid="auth-phone-input" />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label htmlFor="city">Cidade</Label>
+                <Input id="city" value={city} onChange={(e) => setCity(e.target.value)} data-testid="auth-city-input"/>
+              </div>
+              <div>
+                <Label htmlFor="state">UF</Label>
+                <Input id="state" value={stateVal} onChange={(e) => setStateVal(e.target.value.toUpperCase())} maxLength={2} data-testid="auth-state-input"/>
+              </div>
             </div>
           </>
         )}

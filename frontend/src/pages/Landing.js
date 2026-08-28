@@ -70,6 +70,10 @@ export default function Landing() {
               { name: "Cabeleireira", icon: Sparkles, hint: "Corte, coloração, escova" },
               { name: "Manicure", icon: Star, hint: "Manicure, pedicure, gel" },
               { name: "Estética", icon: ShieldCheck, hint: "Sobrancelhas, henna, design" },
+              { name: "Massagem", icon: Sparkles, hint: "Relaxante, terapêutica" },
+              { name: "Spa", icon: Sparkles, hint: "Day-spa, tratamentos" },
+              { name: "Yoga", icon: Star, hint: "Aulas particulares" },
+              { name: "Pilates", icon: ShieldCheck, hint: "Solo, aparelhos" },
             ].map((c) => (
               <div key={c.name} className="rounded-xl border border-border bg-card p-6 hover:border-primary transition-colors cursor-pointer" data-testid={`category-${c.name.toLowerCase()}`}>
                 <c.icon className="text-primary mb-4" size={20} />

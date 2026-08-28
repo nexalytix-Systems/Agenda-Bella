@@ -6,7 +6,8 @@ import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Star, Clock, DollarSign } from "lucide-react";
+import { Star, Clock, DollarSign, Package as PackageIcon, Image as ImageIcon } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 const WEEKDAYS = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
 
@@ -22,6 +23,7 @@ export default function ProfessionalProfile() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [data, setData] = useState(null);
+  const [portfolio, setPortfolio] = useState([]);
   const [service, setService] = useState(null);
   const [date, setDate] = useState(new Date());
   const [slots, setSlots] = useState([]);
@@ -34,7 +36,16 @@ export default function ProfessionalProfile() {
       setData(data);
       if (data.services?.length) setService(data.services[0]);
     });
+    api.get(`/portfolio/professional/${id}`).then(({ data }) => setPortfolio(data));
   }, [id]);
+
+  const buyPackage = async (pk) => {
+    if (!user) { navigate("/entrar"); return; }
+    try {
+      const { data } = await api.post("/packages/checkout", { package_id: pk.id, origin_url: window.location.origin });
+      window.location.href = data.checkout_url;
+    } catch (err) { toast.error(formatApiError(err)); }
+  };
 
   useEffect(() => {
     if (!service || !date) return;
@@ -101,8 +112,9 @@ export default function ProfessionalProfile() {
                   <h1 className="font-serif-display text-3xl leading-tight">{p.name}</h1>
                   {p.category && <Badge variant="secondary" className="mt-2">{p.category}</Badge>}
                 </div>
-                <div className="flex items-center gap-1 text-sm">
-                  <Star size={14} className="fill-accent text-accent"/> 4,9 (128)
+                <div className="flex items-center gap-1 text-sm" data-testid="pro-rating">
+                  <Star size={14} className="fill-accent text-accent"/>
+                  {p.avg_rating ? `${p.avg_rating} (${p.reviews_count})` : "Novo"}
                 </div>
               </div>
               {p.bio && <p className="mt-4 text-sm text-foreground/70 leading-relaxed">{p.bio}</p>}
@@ -146,6 +158,72 @@ export default function ProfessionalProfile() {
               ))}
             </div>
           </div>
+
+          {/* Portfolio */}
+          {portfolio.length > 0 && (
+            <div>
+              <h2 className="font-serif-display text-2xl mb-4 flex items-center gap-2"><ImageIcon size={18}/> Portfolio</h2>
+              <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                {portfolio.map((it) => (
+                  <div key={it.id} className="aspect-square rounded-lg overflow-hidden border border-border">
+                    <img src={it.image_url} alt={it.caption} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" data-testid={`portfolio-img-${it.id}`}/>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Packages */}
+          {data.packages?.length > 0 && (
+            <div>
+              <h2 className="font-serif-display text-2xl mb-4 flex items-center gap-2"><PackageIcon size={18}/> Pacotes de fidelidade</h2>
+              <div className="grid sm:grid-cols-2 gap-3">
+                {data.packages.map((pk) => {
+                  const save = pk.regular_price - pk.price;
+                  return (
+                    <div key={pk.id} className="p-5 rounded-xl border border-border bg-card" data-testid={`package-${pk.id}`}>
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <div className="font-medium">{pk.name}</div>
+                          <div className="text-xs text-foreground/60 mt-1">{pk.sessions_count}× {pk.service_name}</div>
+                        </div>
+                        <Badge variant="secondary">-R$ {save.toFixed(2)}</Badge>
+                      </div>
+                      <div className="mt-3 flex items-end justify-between">
+                        <div>
+                          <div className="text-xs text-foreground/50 line-through">R$ {pk.regular_price.toFixed(2)}</div>
+                          <div className="text-lg font-medium">R$ {pk.price.toFixed(2)}</div>
+                        </div>
+                        <Button size="sm" onClick={() => buyPackage(pk)} className="rounded-full bg-primary hover:bg-primary/90 btn-press" data-testid={`buy-pkg-${pk.id}`}>Comprar</Button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Reviews */}
+          {data.reviews?.length > 0 && (
+            <div>
+              <h2 className="font-serif-display text-2xl mb-4 flex items-center gap-2"><Star size={18}/> Avaliações</h2>
+              <div className="space-y-3">
+                {data.reviews.slice(0, 5).map((r) => (
+                  <div key={r.id} className="p-4 rounded-xl border border-border bg-card" data-testid={`review-${r.id}`}>
+                    <div className="flex items-center gap-2 mb-1">
+                      <div className="flex">
+                        {[1,2,3,4,5].map((n) => (
+                          <Star key={n} size={12} className={n <= r.rating ? "fill-accent text-accent" : "text-foreground/20"}/>
+                        ))}
+                      </div>
+                      <span className="text-sm font-medium">{r.client_name}</span>
+                    </div>
+                    {r.comment && <p className="text-sm text-foreground/70">{r.comment}</p>}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Calendar + slots */}
           {service && (

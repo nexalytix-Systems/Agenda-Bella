@@ -1,15 +1,17 @@
 import { useEffect, useState } from "react";
-import api from "@/lib/api";
+import api, { formatApiError } from "@/lib/api";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, CalendarCheck, TrendingUp } from "lucide-react";
+import { toast } from "sonner";
+import { Users, CalendarCheck, TrendingUp, Award } from "lucide-react";
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState(null);
   const [users, setUsers] = useState([]);
   const [bookings, setBookings] = useState([]);
 
-  useEffect(() => {
+  const load = () => {
     Promise.all([
       api.get("/admin/stats"),
       api.get("/admin/users"),
@@ -19,7 +21,23 @@ export default function AdminDashboard() {
       setUsers(u.data);
       setBookings(b.data);
     });
-  }, []);
+  };
+
+  useEffect(load, []);
+
+  const toggleFeatured = async (u) => {
+    try {
+      const now = new Date().toISOString();
+      if (u.featured_until && u.featured_until > now) {
+        await api.post("/admin/unfeature", { professional_id: u.id });
+        toast.success("Destaque removido");
+      } else {
+        await api.post("/admin/feature", { professional_id: u.id, days: 7 });
+        toast.success("Destacado por 7 dias");
+      }
+      load();
+    } catch (err) { toast.error(formatApiError(err)); }
+  };
 
   const revenue = stats?.revenue?.[0]?.total || 0;
 
@@ -61,15 +79,25 @@ export default function AdminDashboard() {
         </TabsContent>
         <TabsContent value="users">
           <div className="rounded-xl border border-border bg-card divide-y divide-border">
-            {users.map((u) => (
-              <div key={u.id} className="p-4 flex items-center justify-between" data-testid={`admin-user-${u.id}`}>
-                <div>
-                  <div className="font-medium">{u.name}</div>
-                  <div className="text-sm text-foreground/60">{u.email}</div>
+            {users.map((u) => {
+              const isFeatured = u.featured_until && u.featured_until > new Date().toISOString();
+              return (
+                <div key={u.id} className="p-4 flex items-center justify-between flex-wrap gap-3" data-testid={`admin-user-${u.id}`}>
+                  <div>
+                    <div className="font-medium flex items-center gap-2">{u.name} {isFeatured && <Badge className="bg-primary"><Award size={10} className="mr-1"/>Destaque</Badge>}</div>
+                    <div className="text-sm text-foreground/60">{u.email} · {[u.city, u.state].filter(Boolean).join(", ") || "—"}</div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {u.role === "profissional" && (
+                      <Button size="sm" variant={isFeatured ? "outline" : "default"} onClick={() => toggleFeatured(u)} className="rounded-full" data-testid={`feature-btn-${u.id}`}>
+                        <Award size={12} className="mr-1"/>{isFeatured ? "Remover destaque" : "Destacar 7d"}
+                      </Button>
+                    )}
+                    <Badge variant="secondary">{u.role}</Badge>
+                  </div>
                 </div>
-                <Badge variant="secondary">{u.role}</Badge>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </TabsContent>
       </Tabs>
