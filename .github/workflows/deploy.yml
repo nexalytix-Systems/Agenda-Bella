@@ -2,7 +2,7 @@ name: Deploy Frontend to GitHub Pages
 
 on:
   push:
-    branches: [main]
+    branches: [main, master]
   workflow_dispatch:
 
 permissions:
@@ -17,26 +17,49 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: frontend
     steps:
       - uses: actions/checkout@v4
+
+      - name: Detect frontend directory
+        id: detect
+        run: |
+          if [ -f frontend/package.json ]; then
+            echo "dir=frontend" >> $GITHUB_OUTPUT
+            echo "build_out=frontend/build" >> $GITHUB_OUTPUT
+            echo "lock=frontend/yarn.lock" >> $GITHUB_OUTPUT
+          elif [ -f package.json ]; then
+            echo "dir=." >> $GITHUB_OUTPUT
+            echo "build_out=build" >> $GITHUB_OUTPUT
+            echo "lock=yarn.lock" >> $GITHUB_OUTPUT
+          else
+            echo "package.json not found at repo root or in frontend/" && exit 1
+          fi
+          echo "Detected frontend dir: $(cat $GITHUB_OUTPUT | grep dir=)"
+          echo "--- ls repo root ---"
+          ls -la
+
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: yarn
-          cache-dependency-path: frontend/yarn.lock
-      - run: yarn install --frozen-lockfile
+          cache-dependency-path: ${{ steps.detect.outputs.lock }}
+
+      - name: Install
+        working-directory: ${{ steps.detect.outputs.dir }}
+        run: yarn install --frozen-lockfile
+
       - name: Build
+        working-directory: ${{ steps.detect.outputs.dir }}
         env:
           REACT_APP_BACKEND_URL: ${{ vars.REACT_APP_BACKEND_URL }}
           PUBLIC_URL: ./
+          CI: false
         run: yarn build
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: frontend/build
+          path: ${{ steps.detect.outputs.build_out }}
 
   deploy:
     needs: build
