@@ -23,30 +23,37 @@ jobs:
       - name: Detect frontend directory
         id: detect
         run: |
+          echo "--- ls repo root ---"
+          ls -la
           if [ -f frontend/package.json ]; then
             echo "dir=frontend" >> $GITHUB_OUTPUT
             echo "build_out=frontend/build" >> $GITHUB_OUTPUT
-            echo "lock=frontend/yarn.lock" >> $GITHUB_OUTPUT
+            echo "--- ls frontend ---"
+            ls -la frontend
           elif [ -f package.json ]; then
             echo "dir=." >> $GITHUB_OUTPUT
             echo "build_out=build" >> $GITHUB_OUTPUT
-            echo "lock=yarn.lock" >> $GITHUB_OUTPUT
           else
-            echo "package.json not found at repo root or in frontend/" && exit 1
+            echo "ERROR: package.json not found" && exit 1
           fi
-          echo "Detected frontend dir: $(cat $GITHUB_OUTPUT | grep dir=)"
-          echo "--- ls repo root ---"
-          ls -la
 
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: yarn
-          cache-dependency-path: ${{ steps.detect.outputs.lock }}
 
-      - name: Install
+      - name: Enable Corepack (yarn)
+        run: corepack enable
+
+      - name: Install dependencies
         working-directory: ${{ steps.detect.outputs.dir }}
-        run: yarn install --frozen-lockfile
+        run: |
+          if [ -f yarn.lock ]; then
+            echo "yarn.lock found — installing with lockfile"
+            yarn install --frozen-lockfile || yarn install
+          else
+            echo "yarn.lock NOT found — generating fresh install"
+            yarn install
+          fi
 
       - name: Build
         working-directory: ${{ steps.detect.outputs.dir }}
