@@ -1,0 +1,21 @@
+{
+  "summary": "Iteration 4 backend-only regression testing after CORS relaxation (allow_credentials=False, allow_origins=*) and set_auth_cookie made a no-op. Wrote /app/backend/tests/test_iter4_cors_bearer.py covering: CORS preflight from GitHub Pages origin, GET with Origin header, login returns token with no Set-Cookie for access_token, /auth/me works via Bearer header, invalid/missing token rejected 401, admin login (cassimiro77@gmail.com/admin123) role=admin, all admin+authenticated endpoints (admin/stats, admin/users, admin/bookings, bookings/mine, notifications/mine) reachable via Bearer only, public endpoints (professionals list, distance sorting with client_lat/lng, category filter, subscription/plans, root), and register→me→role gating on new cliente. 19/19 tests passed. No regressions.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": ["/app/backend/tests/test_iter4_cors_bearer.py", "/app/test_reports/pytest/iter4_results.xml"],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "server.py is now ~1020 lines; consider modularization (auth/, professionals/, bookings/, payments/, admin/) for maintainability.",
+    "CORS allow_origins=['*'] combined with allow_credentials=False is correct for Bearer-only auth (fixes GitHub Pages CORS). This is the right call now that cookies are gone.",
+    "logout endpoint still calls response.delete_cookie('access_token') — harmless but dead code since no cookie is ever set.",
+    "get_current_user still reads cookies.get('access_token') first — dead branch now; harmless but could be removed for clarity."
+  ],
+  "updated_files": ["/app/backend/tests/test_iter4_cors_bearer.py"],
+  "success_rate": {"backend": "100% (19/19)", "frontend": "not tested (backend-only per request)"},
+  "test_credentials": "Admin cassimiro77@gmail.com / admin123 (verified working)",
+  "seed_data_creation": "Register test creates+deletes one TEST_ prefixed cliente user (cleanup runs).",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Iter 4 covered CORS + Bearer-only auth regression after removing httpOnly cookie flow. All 19 tests pass on public URL. Prior iterations (1-3): 67/67 pass. Cumulative: 86/86. Backend server.py has dead-code cookie remnants (logout delete_cookie, get_current_user cookie read) — safe to leave but flagged.",
+  "rca of the issue": "N/A — no bugs found in this iteration. Verified fix: (1) CORS preflight from https://nexalytix-systems.github.io returns 200 with ACAO=* and no Access-Control-Allow-Credentials:true header; (2) /api/auth/login response no longer contains Set-Cookie: access_token=... ; (3) Bearer token in Authorization header authenticates all protected endpoints; (4) Admin role/permission checks unaffected."
+}

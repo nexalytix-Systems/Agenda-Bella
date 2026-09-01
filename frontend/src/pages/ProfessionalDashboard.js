@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import api, { formatApiError } from "@/lib/api";
+import api, { formatApiError, ORIGIN_URL } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -123,14 +123,14 @@ export default function ProfessionalDashboard() {
 
   const buyBoost = async (plan) => {
     try {
-      const { data } = await api.post("/boost/checkout", { plan, origin_url: window.location.origin });
+      const { data } = await api.post("/boost/checkout", { plan, origin_url: ORIGIN_URL });
       window.location.href = data.checkout_url;
     } catch (err) { toast.error(formatApiError(err)); }
   };
 
   const subscribe = async (plan) => {
     try {
-      const { data } = await api.post("/subscription/checkout", { plan, origin_url: window.location.origin });
+      const { data } = await api.post("/subscription/checkout", { plan, origin_url: ORIGIN_URL });
       window.location.href = data.checkout_url;
     } catch (err) { toast.error(formatApiError(err)); }
   };

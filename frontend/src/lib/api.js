@@ -5,8 +5,10 @@ export const API = `${BACKEND_URL}/api`;
 
 const api = axios.create({
   baseURL: API,
-  withCredentials: true,
+  withCredentials: false,
 });
+
+export const ORIGIN_URL = window.location.origin + (process.env.REACT_APP_BASENAME || "");
 
 // Send Authorization header from localStorage token as fallback for iframes/preview
 api.interceptors.request.use((config) => {

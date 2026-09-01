@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import api, { formatApiError } from "@/lib/api";
+import api, { formatApiError, ORIGIN_URL } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
@@ -42,7 +42,7 @@ export default function ProfessionalProfile() {
   const buyPackage = async (pk) => {
     if (!user) { navigate("/entrar"); return; }
     try {
-      const { data } = await api.post("/packages/checkout", { package_id: pk.id, origin_url: window.location.origin });
+      const { data } = await api.post("/packages/checkout", { package_id: pk.id, origin_url: ORIGIN_URL });
       window.location.href = data.checkout_url;
     } catch (err) { toast.error(formatApiError(err)); }
   };
@@ -79,7 +79,7 @@ export default function ProfessionalProfile() {
       // Create Stripe checkout
       const { data: c } = await api.post("/payments/checkout", {
         booking_id: b.id,
-        origin_url: window.location.origin,
+        origin_url: ORIGIN_URL,
       });
       window.location.href = c.checkout_url;
     } catch (err) {

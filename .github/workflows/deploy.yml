@@ -59,7 +59,8 @@ jobs:
         working-directory: ${{ steps.detect.outputs.dir }}
         env:
           REACT_APP_BACKEND_URL: ${{ vars.REACT_APP_BACKEND_URL }}
-          PUBLIC_URL: ./
+          REACT_APP_BASENAME: /Agenda-Bella
+          PUBLIC_URL: /Agenda-Bella
           CI: false
         run: yarn build
 

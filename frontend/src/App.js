@@ -12,6 +12,8 @@ import ProfessionalDashboard from "@/pages/ProfessionalDashboard";
 import AdminDashboard from "@/pages/AdminDashboard";
 import { PaymentSuccess, PaymentCancel } from "@/pages/PaymentResult";
 
+const BASENAME = process.env.REACT_APP_BASENAME || "";
+
 function Protected({ children, roles }) {
   const { user, loading } = useAuth();
   if (loading) return <div className="max-w-7xl mx-auto p-12 text-foreground/60">Carregando…</div>;
@@ -32,7 +34,7 @@ function Layout({ children }) {
 export default function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
+      <BrowserRouter basename={BASENAME}>
         <Toaster position="top-center" />
         <Layout>
           <Routes>

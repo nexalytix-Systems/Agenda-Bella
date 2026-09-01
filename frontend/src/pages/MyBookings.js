@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import api, { formatApiError } from "@/lib/api";
+import api, { formatApiError, ORIGIN_URL } from "@/lib/api";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -60,7 +60,7 @@ export default function MyBookings() {
 
   const pay = async (b) => {
     try {
-      const { data } = await api.post("/payments/checkout", { booking_id: b.id, origin_url: window.location.origin });
+      const { data } = await api.post("/payments/checkout", { booking_id: b.id, origin_url: ORIGIN_URL });
       window.location.href = data.checkout_url;
     } catch (err) { toast.error(formatApiError(err)); }
   };

@@ -64,7 +64,7 @@ api = APIRouter(prefix="/api")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_credentials=True,
+    allow_credentials=False,
     allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
@@ -153,10 +153,8 @@ def require_role(*roles: str):
     return dep
 
 def set_auth_cookie(response: Response, token: str):
-    response.set_cookie(
-        key="access_token", value=token, httponly=True,
-        secure=True, samesite="none", max_age=604800, path="/",
-    )
+    # Cookies disabled — frontend uses Bearer token from localStorage
+    return
 
 @api.post("/auth/register")
 async def register(body: RegisterIn, response: Response):
